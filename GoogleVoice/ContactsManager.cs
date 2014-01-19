@@ -315,7 +315,7 @@ namespace GoogleVoice
 
                     foreach (Contact deletedContact in OldContacts)
                     {
-                        Debug.WriteLine("Removing orphaned contact: " + deletedContact);
+                        Trace.WriteLine("Removing orphaned contact: " + deletedContact);
                         Contacts.Remove(deletedContact);
                     }
 

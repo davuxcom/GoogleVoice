@@ -178,38 +178,20 @@ namespace GoogleVoice
 
                             Cookie Token_SMSV = http.GetCookie("SMSV", "https://accounts.google.com/");
                             SMSVCookieUpdated_Internal(new GVCookie(Token_SMSV));
-                            
-                            // we're at a redirect landing page, so we need to build up a form and post it in
-                            var form = Regex.Match(ret.Page, "action=\"(.*?)\"", RegexOptions.Singleline);
-                            var fields = Regex.Matches(ret.Page, "input.*?name=\"(.*?)\" value=\"(.*?)\"", RegexOptions.Singleline);
-                            if (form.Success && fields.Count > 0)
-                            {
-                                var dict = new Dictionary<string, string>();
-                                foreach (Match m in fields)
-                                {
-                                    dict.Add(m.Groups[1].Value, m.Groups[2].Value);
-                                }
 
-                                ret = http.Post(form.Groups[1].Value, dict);
-                                if (ret.Uri.ToString() == "https://www.google.com/voice/m")
+                            if (ret.Uri.ToString() == "https://www.google.com/voice/m")
+                            {
+                                // Logged in, find the cookie.
+                                Token_GVX = http.GetCookieString("gvx", "https://www.google.com/voice/m");
+                                if (string.IsNullOrEmpty(Token_GVX))
                                 {
-                                    // we're logged in!
-                                    Token_GVX = http.GetCookieString("gvx", "https://www.google.com/voice/m");
-                                    if (string.IsNullOrEmpty(Token_GVX))
-                                    {
-                                        throw new GVLoginException("GVX is missing after validation response");
-                                    }
-                                }
-                                else
-                                {
-                                    Trace.WriteLine("Didn't get expected redirect: " + ret.Page);
-                                    throw new GVLoginException("Didn't get expected redirect");
+                                    throw new GVLoginException("GVX is missing after validation response");
                                 }
                             }
                             else
                             {
-                                Trace.WriteLine("Couldn't find form in page: " + ret.Page);
-                                throw new GVLoginException("Couldn't find form in page");
+                                Trace.WriteLine("Didn't get expected redirect: " + ret.Page);
+                                throw new GVLoginException("Didn't get expected redirect");
                             }
                         }
                         else
