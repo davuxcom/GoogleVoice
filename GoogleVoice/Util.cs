@@ -79,7 +79,6 @@ namespace GoogleVoice
     // this may have been here because of the Silverlight port
     // there is a version in DavuxLib2 that is probably better?
     // the worst part is that this isn't really even threadsafe!
-    [Obsolete]
     public class GVObservableCollectionEx<T> : ObservableCollection<T>   
     {
         public void Sort()

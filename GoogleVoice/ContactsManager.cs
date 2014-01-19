@@ -147,6 +147,8 @@ namespace GoogleVoice
 
         internal ContactsManager(string ImageDir, string UserName, HttpSession http)
         {
+            ContactsLoadingUpdate = delegate { }; // suppress warning
+
             this.UserName = UserName;
             this.ImageDir = ImageDir;
             this.http = http;
