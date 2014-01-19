@@ -42,13 +42,13 @@ namespace GoogleVoice
                         string id = ((JValue)msg["id"]).Value.ToString();
                         //string name = ((JValue)msg["contact"]["name"]).Value.ToString();
                         string phone_number = ((JValue)msg["phone_number"]).Value.ToString();
-                        //string start_time = ((JValue)msg["start_time"]).Value.ToString();
+                        string start_time = ((JValue)msg["start_time"]).Value.ToString();
 
                         Message vm = new Message
                         {
                             ID = id,
                             Number = phone_number,
-                            Time = DateTime.Now, // GoogleUtils.UnixTimeToDateTime(start_time),
+                            Time = GoogleUtils.UnixTimeToDateTime(start_time),
                             Class = this.MessageType,
                         };
 

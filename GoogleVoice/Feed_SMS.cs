@@ -53,7 +53,7 @@ namespace GoogleVoice
                         string status = ((JValue)msg["status"]).Value.ToString();
                         //string name = ((JValue)msg["contact"]["name"]).Value.ToString();
                         string phone_number = ((JValue)msg["phone_number"]).Value.ToString();
-                        // string start_time = ((JValue)msg["start_time"]).Value.ToString();
+                        string start_time = ((JValue)msg["start_time"]).Value.ToString();
 
                         SMS sms = new SMS
                         {
@@ -62,7 +62,7 @@ namespace GoogleVoice
                             Name = phone_number,
                             Number = phone_number,
                             Text = message_text,
-                            Time = DateTime.Now, // GoogleUtils.UnixTimeToDateTime(start_time),
+                            Time = GoogleUtils.UnixTimeToDateTime(start_time),
                             Self = status == "1",
                         };
 

@@ -47,7 +47,7 @@ namespace GoogleVoice
                         string id = ((JValue)msg["id"]).Value.ToString();
                         //string name = ((JValue)msg["contact"]["name"]).Value.ToString();
                         string phone_number = ((JValue)msg["phone_number"]).Value.ToString();
-                        //string start_time = ((JValue)msg["start_time"]).Value.ToString();
+                        string start_time = ((JValue)msg["start_time"]).Value.ToString();
 
                         string transcript_status = ((JValue)msg["transcript_status"]).Value.ToString();
                         string transcript_text = "";
@@ -59,13 +59,17 @@ namespace GoogleVoice
                                 if (transcript != null)
                                 {
                                     JToken word_tokens = transcript["word_tokens"];
-                                    foreach (var word in word_tokens)
+                                    if (word_tokens != null)
                                     {
-                                        // TODO we can pull out the accuracy and make pretty
-                                        // looking message transcriptions
-                                        string w = ((JValue)word["word"]).Value.ToString();
-                                        transcript_text += w + " ";
+                                        foreach (var word in word_tokens)
+                                        {
+                                            // TODO we can pull out the accuracy and make pretty
+                                            // looking message transcriptions
+                                            string w = ((JValue)word["word"]).Value.ToString();
+                                            transcript_text += w + " ";
+                                        }
                                     }
+
                                 }
                             }
                             catch (Exception ex)
@@ -84,7 +88,7 @@ namespace GoogleVoice
                         var vm = new VoiceMailMessage
                         {
                             ID = id,
-                            Time = DateTime.Now, // GoogleUtils.UnixTimeToDateTime(start_time),
+                            Time = GoogleUtils.UnixTimeToDateTime(start_time),
                             Number = phone_number,
                             CID = cid,
                             MessageText = transcript_text,
