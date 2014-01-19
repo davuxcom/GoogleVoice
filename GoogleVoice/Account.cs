@@ -134,7 +134,7 @@ namespace GoogleVoice
                             {"GALX", Token_GALX},
                             {"Email", UserName},
                             {"Passwd", Password},
-                        });
+                        }); 
                     if (ret.Uri.ToString() == "https://www.google.com/voice/m")
                     {
                         // we're logged in!
@@ -144,25 +144,36 @@ namespace GoogleVoice
                             throw new GVLoginException("GVX is missing after primary redirect");
                         }
                     }
-                    else if (ret.Uri.ToString().StartsWith("https://accounts.google.com/SmsAuth"))
+                    else if (ret.Uri.ToString().StartsWith("https://accounts.google.com/SecondFactor"))
                     {
                         // 2-step verification - SMS verification required.
-                        Match sms = Regex.Match(ret.Page, "name=\"smsToken\".*?value=\"(.*?)\"", RegexOptions.Singleline);
+                        Match sms = Regex.Match(ret.Page, "name=\"secTok\".*?value='(.*?)'", RegexOptions.Singleline);
                         if (sms.Success)
                         {
-                            string smsToken = sms.Groups[1].Value;
+                            string Timestamp = "";
+                            Match timeStmp = Regex.Match(ret.Page, "name=\"timeStmp\".*?value='(.*?)'", RegexOptions.Singleline);
+                            if (timeStmp.Success)
+                            {
+                                Timestamp = timeStmp.Groups[1].Value;
+                            }
+
+                            string secTok = sms.Groups[1].Value;
                             string Token_UserSMSPin = GetSMSPinFromUser();
 
-                            Trace.WriteLine("smsToken: " + smsToken);
+                            Trace.WriteLine("secTok: " + secTok);
                             Trace.WriteLine("User-Provided PIN: " + Token_UserSMSPin);
                             
-                            ret = http.Post("https://accounts.google.com/SmsAuth?persistent=yes&service=grandcentral",
+                            ret = http.Post("https://accounts.google.com/SecondFactor",
                                 new Dictionary<string, string> {
-                                    {"smsToken" , smsToken},
-                                    {"smsUserPin" , Token_UserSMSPin},
-                                    {"Email", UserName},
+                                    {"continue", "https://www.google.com/voice/m?initialauth"},
+                                    {"service", "grandcentral"},
+                                    {"smsToken", ""},
+                                    {"secTok" , secTok},
+                                    {"timeStmp" , Timestamp},
+                                    {"smsUserPin", Token_UserSMSPin},
+                                    {"PersistentCookie", "true"},
                                     {"smsVerifyPin", "Verify"},
-                                    {"PersistentCookie", "yes"},
+                                    {"PersistentOptionSelection", "1"},
                                 });
 
                             Cookie Token_SMSV = http.GetCookie("SMSV", "https://accounts.google.com/");
