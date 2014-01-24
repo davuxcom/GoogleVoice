@@ -11,7 +11,9 @@ namespace GoogleVoice
 {
     public class GVLoginException : ApplicationException
     {
-        public GVLoginException(string message) : base(message) { }
+        public Uri LastUri { get; private set;  }
+        public GVLoginException(string message, Uri LastUri = null) : 
+            base(message) { this.LastUri = LastUri; }
     }
 
     public class Account
@@ -105,13 +107,12 @@ namespace GoogleVoice
         {
             // fiddler2
             // GlobalProxySelection.Select = new WebProxy("127.0.0.1", 8888);
-
+            HttpResult ret = null;
             Trace.WriteLine("GoogleVoice/Account/Login UserName: " + UserName);
             try
             {
                 OnLoginMessage_Internal("Connecting...");
-                HttpResult ret = http.Get("https://www.google.com/voice/m");
-
+                ret = http.Get("https://www.google.com/voice/m");
                 if (ret.Uri.LocalPath == "/ServiceLogin")
                 {
                     string Token_GALX = http.GetCookieString("GALX", "https://accounts.google.com/");
@@ -213,20 +214,20 @@ namespace GoogleVoice
                             Token_GVX = http.GetCookieString("gvx", "https://www.google.com/voice/m");
                             if (string.IsNullOrEmpty(Token_GVX))
                             {
-                                throw new GVLoginException("GVX is missing after redirect");
+                                throw new GVLoginException("GVX is missing after redirect", ((ret != null) ? ret.Uri : null));
                             }
                         }
                         else
                         {
                             Trace.WriteLine("Couldn't find continue: " + ret.Page);
-                            throw new GVLoginException("Couldn't find continue");
+                            throw new GVLoginException("Couldn't find continue", ((ret != null) ? ret.Uri : null));
                         }
                     }
                 }
                 else
                 {
                     Trace.WriteLine("Couldn't find ServiceLogin: " + ret.Page);
-                    throw new GVLoginException("ServiceLogin not found");
+                    throw new GVLoginException("ServiceLogin not found", ((ret != null) ? ret.Uri : null));
                 }
 
                 try
